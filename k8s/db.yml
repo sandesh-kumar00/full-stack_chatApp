@@ -1,0 +1,70 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: db
+  namespace: app
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          envFrom:
+          - secretRef:
+              name: db-secret
+          volumeMounts:
+            - name: db-data
+              mountPath: /data/db
+
+          readinessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            failureThreshold: 3
+
+          livenessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 5
+      
+  volumeClaimTemplates:
+     - metadata:
+         name: db-data
+       spec:
+         accessModes:
+           - ReadWriteOnce 
+         storageClassName: standard-rwo
+         resources:
+           requests:
+             storage: 5Gi
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: db-svc
+  namespace: app
+spec:
+  selector:
+    app: db
+  ports:
+    - port: 27017
+      targetPort: 27017
+  clusterIP: None    
+
+
+

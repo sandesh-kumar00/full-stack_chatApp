@@ -1,0 +1,67 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: backend
+  namespace: app
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: yashsaini252/backend
+          ports:
+            - containerPort: 5001
+          env:
+          - name: MONGODB_URI
+            value: "mongodb://admin:root@db-svc:27017/devops?authSource=admin"
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: prod-secret
+                key: JWT_SECRET
+          - name: PORT
+            value: "5001"
+          - name: NODE_ENV
+            value: "production"
+          
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 30
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 60
+            periodSeconds: 10
+---     
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: backend
+  namespace: app
+
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 5001
+      targetPort: 5001
+      protocol: TCP
+
+
+
+
+
