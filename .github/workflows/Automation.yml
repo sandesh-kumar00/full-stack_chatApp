@@ -1,0 +1,90 @@
+name: build-and-deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: double-backup-509612-i1
+  AR_URL: asia-south1-docker.pkg.dev
+  CLUSTER_NAME: cluster-1
+  CLUSTER_LOCATION: asia-south1-a
+  
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: checkout the code
+        uses: actions/checkout@v4
+
+      - name: Authentication-GCP-with-WIF
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: "projects/721198322347/locations/global/workloadIdentityPools/github-pool/providers/github"
+          service_account: "wif-github@double-backup-509612-i1.iam.gserviceaccount.com"
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: configure-docker-to-AR
+        run: |
+          gcloud auth configure-docker ${{ env.AR_URL}} --quiet
+
+      - name: build-frontend-image
+        run: |
+          docker build \
+            -t asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/frontend:${{github.sha}} \
+            -t asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/frontend:latest \
+            ./frontend
+      - name: build-backend-image
+        run: |
+          docker build \
+            -t asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/backend:${{github.sha}} \
+            -t asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/backend:latest \
+            ./backend
+
+      - name: push-to-Artifact-Registry
+        run: |
+          docker push asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/frontend:${{github.sha}}
+          docker push asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/backend:${{github.sha}}
+
+          docker push asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/frontend:latest 
+          docker push asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/backend:latest 
+
+      - name: GKE-credentials
+        uses: google-github-actions/get-gke-credentials@v3
+        with:
+          cluster_name: ${{env.CLUSTER_NAME}}
+          cluster_location: ${{env.CLUSTER_LOCATION}}
+          project_id: ${{env.PROJECT_ID}}
+
+      - name: deploy-to-GKE
+        run: |
+          kubectl set image deployment/backend \
+          backend=asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/backend:${{github.sha}} \
+          -n app
+
+          kubectl set image deployment/frontend \
+          frontend=asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/frontend:${{github.sha}} \
+          -n app
+
+      - name: verify-Deployment
+        run: |
+          kubectl rollout status deployment/backend -n app --timeout=300s
+          kubectl rollout status deployment/frontend -n app --timeout=300s
+
+          kubectl get pod -n app
+        
+        
+        
+        
+    
+  
