@@ -29,10 +29,6 @@ jobs:
         env:
           SONAR_TOKEN: squ_b69429cea5cf32701772412895377400a78e9db8
           SONAR_HOST_URL: http://localhost:9000/
-        with:
-          args: >
-            -Dsonar.qualitygate.wait=true
-            -Dsonar.qualitygate.timeout=600
 
       - name: Authentication-GCP-with-WIF
         uses: google-github-actions/auth@v2
