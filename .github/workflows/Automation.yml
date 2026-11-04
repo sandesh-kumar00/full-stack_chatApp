@@ -27,8 +27,8 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v8.3.0
         env:
-          SONAR_TOKEN: squ_b69429cea5cf32701772412895377400a78e9db8
-          SONAR_HOST_URL: http://localhost:9000/
+          SONAR_TOKEN: squ_df6746cdbcf73d430c3638b30739160ef3dc83e1
+          SONAR_HOST_URL: http://34.136.6.130:9000/
 
       - name: Authentication-GCP-with-WIF
         uses: google-github-actions/auth@v2
