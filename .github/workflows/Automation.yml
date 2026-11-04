@@ -29,6 +29,11 @@ jobs:
         env:
           SONAR_TOKEN: squ_df6746cdbcf73d430c3638b30739160ef3dc83e1
           SONAR_HOST_URL: http://34.136.6.130:9000/
+        with:
+          args: >
+            -Dsonar.projectKey=chatapp
+            -Dsonar.projectName=ChatApp
+            -Dsonar.sources=.
 
       - name: Authentication-GCP-with-WIF
         uses: google-github-actions/auth@v2
