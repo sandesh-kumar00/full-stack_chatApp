@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: yashsaini252/frontend
+          image: asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/frontend:latest
           ports:
             - containerPort: 80
           env:
