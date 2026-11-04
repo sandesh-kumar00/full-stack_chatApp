@@ -9,7 +9,7 @@ env:
   PROJECT_ID: double-backup-509612-i1
   AR_URL: asia-south1-docker.pkg.dev
   CLUSTER_NAME: cluster-1
-  CLUSTER_LOCATION: asia-south1-a
+  LOCATION: asia-south1-a
   
 
 jobs:
@@ -63,7 +63,7 @@ jobs:
         uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{env.CLUSTER_NAME}}
-          cluster_location: ${{env.CLUSTER_LOCATION}}
+          location: ${{env.LOCATION}}
           project_id: ${{env.PROJECT_ID}}
 
       - name: deploy-to-GKE
