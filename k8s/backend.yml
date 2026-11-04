@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: yashsaini252/backend
+          image: asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/backend:latest
           ports:
             - containerPort: 5001
           env:
