@@ -73,7 +73,7 @@ jobs:
             -t asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/backend:latest \
             ./backend
 
-      - name: Trivy frontend image scan
+      - name: Trivy backend image scan
         uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: ${{ env.AR_URL }}/${{ env.PROJECT_ID }}/image-hub/backend:${{ github.sha }}
