@@ -27,8 +27,8 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v8.3.0
         env:
-          SONAR_TOKEN: squ_df6746cdbcf73d430c3638b30739160ef3dc83e1
-          SONAR_HOST_URL: http://34.136.6.130:9000/
+          SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+          SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
         with:
           args: >
             -Dsonar.projectKey=chatapp
@@ -39,8 +39,8 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           project_id: ${{ env.PROJECT_ID }}
-          workload_identity_provider: "projects/721198322347/locations/global/workloadIdentityPools/github-pool/providers/github"
-          service_account: "wif-github@double-backup-509612-i1.iam.gserviceaccount.com"
+          workload_identity_provider: ${{secrets.WORKLOAD_IDENTITY_PROVIDE}}
+          service_account: ${{secrets.SERVICE_ACCOUNT}}
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v3
