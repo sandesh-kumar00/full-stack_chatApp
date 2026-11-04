@@ -24,6 +24,16 @@ jobs:
       - name: checkout the code
         uses: actions/checkout@v4
 
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v8.3.0
+        env:
+          SONAR_TOKEN: squ_b69429cea5cf32701772412895377400a78e9db8
+          SONAR_HOST_URL: http://localhost:9000/
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=600
+
       - name: Authentication-GCP-with-WIF
         uses: google-github-actions/auth@v2
         with:
@@ -44,12 +54,33 @@ jobs:
             -t asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/frontend:${{github.sha}} \
             -t asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/frontend:latest \
             ./frontend
+
+      - name: Trivy frontend image scan
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: ${{ env.AR_URL }}/${{ env.PROJECT_ID }}/image-hub/frontend:${{ github.sha }}
+          format: table
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '0'
+          
       - name: build-backend-image
         run: |
           docker build \
             -t asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/backend:${{github.sha}} \
             -t asia-south1-docker.pkg.dev/double-backup-509612-i1/image-hub/backend:latest \
             ./backend
+
+      - name: Trivy frontend image scan
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: ${{ env.AR_URL }}/${{ env.PROJECT_ID }}/image-hub/backend:${{ github.sha }}
+          format: table
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '0'
 
       - name: push-to-Artifact-Registry
         run: |
