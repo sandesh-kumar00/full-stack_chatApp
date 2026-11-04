@@ -57,7 +57,7 @@ jobs:
             ./frontend
 
       - name: Trivy frontend image scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: ${{ env.AR_URL }}/${{ env.PROJECT_ID }}/image-hub/frontend:${{ github.sha }}
           format: table
